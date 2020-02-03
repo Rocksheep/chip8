@@ -160,3 +160,7 @@ func (chip8 *Chip8) LoadProgram(program []byte) {
 		chip8.memory[i+programStart] = program[i]
 	}
 }
+
+func (chip8 *Chip8) ScreenBuffer() [2048]byte {
+	return chip8.screenBuffer
+}
