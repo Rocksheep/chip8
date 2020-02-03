@@ -44,6 +44,11 @@ func (chip8 *Chip8) Step() {
 		chip8.generalRegisters[register] = value
 		chip8.programCounter += 2
 		break
+	case 0x7000:
+		register := (data & 0x0F00) >> 8
+		chip8.generalRegisters[register] += byte(data & 0xFF)
+		chip8.programCounter += 2
+		break
 	case 0xA000:
 		chip8.registerI = data & 0x0FFF
 		chip8.programCounter += 2
