@@ -46,6 +46,15 @@ func (chip8 *Chip8) Step() {
 		chip8.programCounter += 2
 	} else if data&0xF000 == 0xD000 {
 		chip8.draw(data)
+	} else if data&0xF000 == 0xF000 {
+		if data&0x00FF == 0x0033 {
+			value := data & 0x0F00 >> 8
+			for i := uint16(3); i > 0; i-- {
+				chip8.memory[chip8.registerI+i-1] = byte(value % 10)
+				value /= 10
+			}
+			chip8.programCounter += 2
+		}
 	} else {
 		fmt.Printf("Unknown command: %X\n", data)
 	}
