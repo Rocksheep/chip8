@@ -24,16 +24,14 @@ func New() *Chip8 {
 		0,
 		0,
 		0,
-		0,
+		0x200,
 		[16]uint16{},
 		[2048]byte{},
 	}
 }
 
 func (chip8 *Chip8) Step() {
-	pointer := 0x200 + chip8.programCounter
-
-	var data uint16 = uint16(chip8.memory[pointer])<<8 | uint16(chip8.memory[pointer+1])
+	var data uint16 = uint16(chip8.memory[chip8.programCounter])<<8 | uint16(chip8.memory[chip8.programCounter+1])
 	fmt.Printf("%X\n", data)
 
 	if data&0xF000 == 0x2000 {
@@ -42,13 +40,15 @@ func (chip8 *Chip8) Step() {
 		register := (data & 0x0F00) >> 8
 		value := byte(data)
 		chip8.generalRegisters[register] = value
+		chip8.programCounter += 2
 	} else if data&0xF000 == 0xA000 {
 		chip8.registerI = data & 0x0FFF
+		chip8.programCounter += 2
 	} else if data&0xF000 == 0xD000 {
 		chip8.draw(data)
+	} else {
+		fmt.Printf("Unknown command: %X\n", data)
 	}
-
-	chip8.programCounter += 2
 }
 
 func (chip8 *Chip8) call(address uint16) {
@@ -93,6 +93,7 @@ func (chip8 *Chip8) draw(data uint16) {
 		}
 	}
 	fmt.Print("\n")
+	chip8.programCounter += 2
 }
 
 func (chip8 *Chip8) LoadProgram(program []byte) {
