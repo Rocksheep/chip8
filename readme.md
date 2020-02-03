@@ -1,0 +1,2 @@
+# CHIP 8 Emulator
+This emulator is the first emulator I am writing to learn how such a thing is done. I'm using [Cowgod's](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM) technical document as reference.
