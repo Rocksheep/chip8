@@ -34,19 +34,24 @@ func (chip8 *Chip8) Step() {
 	var data uint16 = uint16(chip8.memory[chip8.programCounter])<<8 | uint16(chip8.memory[chip8.programCounter+1])
 	fmt.Printf("%X\n", data)
 
-	if data&0xF000 == 0x2000 {
+	switch data & 0xF000 {
+	case 0x2000:
 		chip8.call(data & 0x0FFF)
-	} else if data&0xF000 == 0x6000 {
+		break
+	case 0x6000:
 		register := (data & 0x0F00) >> 8
 		value := byte(data)
 		chip8.generalRegisters[register] = value
 		chip8.programCounter += 2
-	} else if data&0xF000 == 0xA000 {
+		break
+	case 0xA000:
 		chip8.registerI = data & 0x0FFF
 		chip8.programCounter += 2
-	} else if data&0xF000 == 0xD000 {
+		break
+	case 0xD000:
 		chip8.draw(data)
-	} else if data&0xF000 == 0xF000 {
+		break
+	case 0xF000:
 		if data&0x00FF == 0x0033 {
 			value := data & 0x0F00 >> 8
 			for i := uint16(3); i > 0; i-- {
@@ -55,7 +60,8 @@ func (chip8 *Chip8) Step() {
 			}
 			chip8.programCounter += 2
 		}
-	} else {
+		break
+	default:
 		fmt.Printf("Unknown command: %X\n", data)
 	}
 }
