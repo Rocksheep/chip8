@@ -35,6 +35,11 @@ func (chip8 *Chip8) Step() {
 	fmt.Printf("%X\n", data)
 
 	switch data & 0xF000 {
+	case 0x0000:
+		if data&0xFF == 0xEE {
+			chip8.stackPointer--
+			chip8.programCounter = chip8.stack[chip8.stackPointer]
+		}
 	case 0x2000:
 		chip8.call(data & 0x0FFF)
 		break
@@ -64,15 +69,16 @@ func (chip8 *Chip8) Step() {
 				chip8.memory[chip8.registerI+i-1] = byte(value % 10)
 				value /= 10
 			}
+			chip8.programCounter += 2
 			break
 		case 0x65:
 			limit := data & 0x0F00 >> 8
 			for i := uint16(0); i <= limit; i++ {
 				chip8.generalRegisters[i] = chip8.memory[chip8.registerI+i]
 			}
+			chip8.programCounter += 2
 			break
 		}
-		chip8.programCounter += 2
 	default:
 		fmt.Printf("Unknown command: %X\n", data)
 	}
