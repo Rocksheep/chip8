@@ -52,15 +52,22 @@ func (chip8 *Chip8) Step() {
 		chip8.draw(data)
 		break
 	case 0xF000:
-		if data&0x00FF == 0x0033 {
+		switch data & 0xFF {
+		case 0x33:
 			value := data & 0x0F00 >> 8
 			for i := uint16(3); i > 0; i-- {
 				chip8.memory[chip8.registerI+i-1] = byte(value % 10)
 				value /= 10
 			}
-			chip8.programCounter += 2
+			break
+		case 0x65:
+			limit := data & 0x0F00 >> 8
+			for i := uint16(0); i <= limit; i++ {
+				chip8.generalRegisters[i] = chip8.memory[chip8.registerI+i]
+			}
+			break
 		}
-		break
+		chip8.programCounter += 2
 	default:
 		fmt.Printf("Unknown command: %X\n", data)
 	}
