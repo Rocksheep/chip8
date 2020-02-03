@@ -36,17 +36,25 @@ func (chip8 *Chip8) Step() {
 	var data uint16 = uint16(chip8.memory[pointer])<<8 | uint16(chip8.memory[pointer+1])
 	fmt.Printf("%X\n", data)
 
-	if data&0x6000 == 0x6000 {
+	if data&0xF000 == 0x2000 {
+		chip8.call(data & 0x0FFF)
+	} else if data&0xF000 == 0x6000 {
 		register := (data & 0x0F00) >> 8
 		value := byte(data)
 		chip8.generalRegisters[register] = value
-	} else if data&0xA000 == 0xA000 {
+	} else if data&0xF000 == 0xA000 {
 		chip8.registerI = data & 0x0FFF
-	} else if data&0xD000 == 0xD000 {
+	} else if data&0xF000 == 0xD000 {
 		chip8.draw(data)
 	}
 
 	chip8.programCounter += 2
+}
+
+func (chip8 *Chip8) call(address uint16) {
+	chip8.stack[chip8.stackPointer] = chip8.programCounter
+	chip8.stackPointer++
+	chip8.programCounter = address
 }
 
 func (chip8 *Chip8) draw(data uint16) {
@@ -58,14 +66,10 @@ func (chip8 *Chip8) draw(data uint16) {
 	vY := uint16(chip8.generalRegisters[vYAddress]) * 64
 	chip8.generalRegisters[0xF] = 0
 
-	fmt.Printf("Addresses: %X %X %X, Spritesize/height: %X\n", vXAddress, vYAddress, chip8.registerI, spriteSize)
-	fmt.Printf("Values: %X %X\n", vX, vY)
 	for line := byte(0); line < spriteSize; line++ {
 		spriteAddress := chip8.registerI + uint16(line)
 		sprite := chip8.memory[spriteAddress]
 
-		fmt.Printf("Sprite: %X\n", sprite)
-		fmt.Printf("%0b\n", sprite)
 		y := vY + 64*uint16(line)
 		for i := uint16(0); i < 8; i++ {
 			x := (vX + i) % 64
