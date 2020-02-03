@@ -14,8 +14,8 @@ import (
 var windowWidth int = 300
 var windowHeight int = 200
 
-var screenWidth int = 128
-var screenHeight int = 64
+var screenWidth int = 256
+var screenHeight int = 128
 
 var screenX float64 = float64(windowWidth/2 - screenWidth/2)
 var screenY float64 = float64(windowHeight/2 - screenHeight/2)
@@ -50,6 +50,19 @@ func update(screen *ebiten.Image) error {
 	drawOptions := &ebiten.DrawImageOptions{}
 	drawOptions.GeoM.Translate(screenX, screenY)
 	screen.DrawImage(chip8Display, drawOptions)
+
+	pixelImage, _ := ebiten.NewImage(4, 4, ebiten.FilterNearest)
+	pixelImage.Fill(color.RGBA{0, 0xFF, 0, 0xFF})
+	buffer := processor.ScreenBuffer()
+	for i, pixel := range buffer {
+		if pixel == 1 {
+			x := float64((i % 64) * 4)
+			y := float64((i / 64) * 4)
+			drawOptions := &ebiten.DrawImageOptions{}
+			drawOptions.GeoM.Translate(screenX+x, screenY+y)
+			screen.DrawImage(pixelImage, drawOptions)
+		}
+	}
 
 	return nil
 }
