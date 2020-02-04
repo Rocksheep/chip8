@@ -96,6 +96,13 @@ func (chip8 *Chip8) Step() {
 	case 0xD000:
 		chip8.draw(data)
 		break
+	case 0xE000:
+		//TODO: Add actual keyboard checks
+		if data&0xFF == 0xA1 {
+			chip8.programCounter += 2
+		}
+		chip8.programCounter += 2
+		break
 	case 0xF000:
 		switch data & 0xFF {
 		case 0x07:
