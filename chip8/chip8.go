@@ -1,6 +1,10 @@
 package chip8
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+	"time"
+)
 
 // Chip8 ...
 type Chip8 struct {
@@ -85,6 +89,10 @@ func (chip8 *Chip8) Step() {
 		chip8.registerI = data & 0x0FFF
 		chip8.programCounter += 2
 		break
+	case 0xC000:
+		register := (data & 0xF00) >> 8
+		chip8.generalRegisters[register] = byte(data) & byte(rand.Intn(255))
+		chip8.programCounter += 2
 	case 0xD000:
 		chip8.draw(data)
 		break
@@ -123,6 +131,8 @@ func (chip8 *Chip8) Step() {
 	default:
 		fmt.Printf("Unknown command: %X\n", data)
 	}
+
+	time.Sleep(2)
 }
 
 func (chip8 *Chip8) call(address uint16) {
