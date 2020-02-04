@@ -57,7 +57,7 @@ func (chip8 *Chip8) Step() {
 	case 0x0000:
 		if data&0xFF == 0xEE {
 			chip8.stackPointer--
-			chip8.programCounter = chip8.stack[chip8.stackPointer]
+			chip8.programCounter = chip8.stack[chip8.stackPointer] + 2
 		}
 	case 0x2000:
 		chip8.call(data & 0x0FFF)
@@ -139,17 +139,6 @@ func (chip8 *Chip8) draw(data uint16) {
 		}
 	}
 
-	for i := 0; i < 2048; i++ {
-		if i%64 == 0 {
-			fmt.Print("\n")
-		}
-		if chip8.screenBuffer[i] == 0 {
-			fmt.Print(".")
-		} else {
-			fmt.Print("#")
-		}
-	}
-	fmt.Print("\n")
 	chip8.programCounter += 2
 }
 
