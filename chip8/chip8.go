@@ -82,6 +82,11 @@ func (chip8 *Chip8) Step() {
 		break
 	case 0xF000:
 		switch data & 0xFF {
+		case 0x15:
+			value := byte(data & 0x0F00 >> 8)
+			chip8.delayTimer = value
+			chip8.programCounter += 2
+			break
 		case 0x29:
 			value := data & 0x0F00 >> 8
 			chip8.registerI = value * 5
