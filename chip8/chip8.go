@@ -63,6 +63,10 @@ func (chip8 *Chip8) Step() {
 			chip8.stackPointer--
 			chip8.programCounter = chip8.stack[chip8.stackPointer] + 2
 		}
+		break
+	case 0x1000:
+		chip8.programCounter = data & 0xFFF
+		break
 	case 0x2000:
 		chip8.call(data & 0x0FFF)
 		break
@@ -98,6 +102,10 @@ func (chip8 *Chip8) Step() {
 		registerB := (data & 0xF0) >> 4
 
 		switch data & 0xF {
+		case 0x0:
+			chip8.generalRegisters[registerA] = chip8.generalRegisters[registerB]
+			chip8.programCounter += 2
+			break
 		case 0x2:
 			chip8.generalRegisters[registerA] &= chip8.generalRegisters[registerB]
 			chip8.programCounter += 2
@@ -106,9 +114,21 @@ func (chip8 *Chip8) Step() {
 			result := uint16(chip8.generalRegisters[registerA]) + uint16(chip8.generalRegisters[registerB])
 			if result > 255 {
 				chip8.generalRegisters[0xF] = 1
+			} else {
+				chip8.generalRegisters[0xF] = 0
 			}
 			chip8.generalRegisters[registerA] = byte(result)
 			chip8.programCounter += 2
+			break
+		case 0x5:
+			if chip8.generalRegisters[registerA] > chip8.generalRegisters[registerB] {
+				chip8.generalRegisters[0xF] = 1
+			} else {
+				chip8.generalRegisters[0xF] = 0
+			}
+			chip8.generalRegisters[registerA] -= chip8.generalRegisters[registerB]
+			chip8.programCounter += 2
+			break
 		}
 		break
 	case 0xA000:
@@ -140,6 +160,11 @@ func (chip8 *Chip8) Step() {
 			chip8.delayTimer = value
 			chip8.programCounter += 2
 			break
+		case 0x18:
+			register := (data & 0xF00) >> 8
+			chip8.soundTimer = chip8.generalRegisters[register]
+			chip8.programCounter += 2
+			break
 		case 0x29:
 			value := data & 0x0F00 >> 8
 			chip8.registerI = value * 5
@@ -165,7 +190,7 @@ func (chip8 *Chip8) Step() {
 		fmt.Printf("Unknown command: %X\n", data)
 	}
 
-	time.Sleep(2)
+	time.Sleep(2 * time.Millisecond)
 }
 
 func (chip8 *Chip8) call(address uint16) {
