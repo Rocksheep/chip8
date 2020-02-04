@@ -1,12 +1,13 @@
 package main
 
 import (
-	"chip8/chip8"
 	"fmt"
 	"image/color"
 	"io/ioutil"
 	"log"
 	"os"
+
+	"../chip8/chip8"
 
 	"github.com/hajimehoshi/ebiten"
 )
@@ -45,11 +46,17 @@ func update(screen *ebiten.Image) error {
 	}
 
 	// 64 x 32
-	chip8Display, _ := ebiten.NewImage(screenWidth, screenHeight, ebiten.FilterNearest)
-	chip8Display.Fill(color.RGBA{0xFF, 0xFF, 0xFF, 0xFF})
-	drawOptions := &ebiten.DrawImageOptions{}
-	drawOptions.GeoM.Translate(screenX, screenY)
-	screen.DrawImage(chip8Display, drawOptions)
+	chip8Border, _ := ebiten.NewImage(screenWidth+10, screenHeight+10, ebiten.FilterNearest)
+	chip8Border.Fill(color.RGBA{0x00, 0xFF, 0x00, 0xFF})
+	drawOptionsBorder := &ebiten.DrawImageOptions{}
+	drawOptionsBorder.GeoM.Translate(screenX-5, screenY-5)
+	screen.DrawImage(chip8Border, drawOptionsBorder)
+
+	chip8Screen, _ := ebiten.NewImage(screenWidth+8, screenHeight+8, ebiten.FilterNearest)
+	chip8Screen.Fill(color.RGBA{0x00, 0x00, 0x00, 0xFF})
+	drawOptionsScreen := &ebiten.DrawImageOptions{}
+	drawOptionsScreen.GeoM.Translate(screenX-4, screenY-4)
+	screen.DrawImage(chip8Screen, drawOptionsScreen)
 
 	pixelImage, _ := ebiten.NewImage(4, 4, ebiten.FilterNearest)
 	pixelImage.Fill(color.RGBA{0, 0xFF, 0, 0xFF})
