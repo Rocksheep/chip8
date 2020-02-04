@@ -62,6 +62,14 @@ func (chip8 *Chip8) Step() {
 	case 0x2000:
 		chip8.call(data & 0x0FFF)
 		break
+	case 0x3000:
+		register := (data & 0x0F00) >> 8
+		value := byte(data)
+		if chip8.generalRegisters[register] == value {
+			chip8.programCounter += 2
+		}
+		chip8.programCounter += 2
+		break
 	case 0x6000:
 		register := (data & 0x0F00) >> 8
 		value := byte(data)
