@@ -74,6 +74,14 @@ func (chip8 *Chip8) Step() {
 		}
 		chip8.programCounter += 2
 		break
+	case 0x4000:
+		register := (data & 0x0F00) >> 8
+		value := byte(data)
+		if chip8.generalRegisters[register] != value {
+			chip8.programCounter += 2
+		}
+		chip8.programCounter += 2
+		break
 	case 0x6000:
 		register := (data & 0x0F00) >> 8
 		value := byte(data)
@@ -95,7 +103,7 @@ func (chip8 *Chip8) Step() {
 			chip8.programCounter += 2
 			break
 		case 0x4:
-			result := uint16(chip8.generalRegisters[registerA]) + uint16(chip8.generalRegisters[registerB]))
+			result := uint16(chip8.generalRegisters[registerA]) + uint16(chip8.generalRegisters[registerB])
 			if result > 255 {
 				chip8.generalRegisters[0xF] = 1
 			}
