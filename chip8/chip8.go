@@ -139,6 +139,7 @@ func (chip8 *Chip8) Step() {
 		register := (data & 0xF00) >> 8
 		chip8.generalRegisters[register] = byte(data) & byte(rand.Intn(255))
 		chip8.programCounter += 2
+		break
 	case 0xD000:
 		chip8.draw(data)
 		break
@@ -166,7 +167,8 @@ func (chip8 *Chip8) Step() {
 			chip8.programCounter += 2
 			break
 		case 0x29:
-			value := data & 0x0F00 >> 8
+			register := (data & 0xF00) >> 8
+			value := uint16(chip8.generalRegisters[register])
 			chip8.registerI = value * 5
 			chip8.programCounter += 2
 			break
