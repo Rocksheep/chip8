@@ -135,6 +135,10 @@ func drawMemory(screen *ebiten.Image) {
 		instructionText := fmt.Sprintf("%04X", commands[i].Instruction)
 
 		switch commands[i].Instruction & 0xF000 {
+		case 0x2000:
+			addr := commands[i].Instruction & 0xFFF
+			instructionText = fmt.Sprintf("CALL %03X", addr)
+			break
 		case 0x6000:
 			v := commands[i].Instruction & 0xF00 >> 8
 			kk := byte(commands[i].Instruction)
@@ -148,6 +152,20 @@ func drawMemory(screen *ebiten.Image) {
 			v2 := commands[i].Instruction & 0xF0 >> 4
 			n := commands[i].Instruction & 0xF
 			instructionText = fmt.Sprintf("DRW v%X, v%X, %X", v1, v2, n)
+			break
+		case 0xF000:
+			value := (commands[i].Instruction & 0xF00) >> 8
+			switch commands[i].Instruction & 0xFF {
+			case 0x29:
+				instructionText = fmt.Sprintf("LD F, v%X", value)
+				break
+			case 0x33:
+				instructionText = fmt.Sprintf("LD B, v%X", value)
+				break
+			case 0x65:
+				instructionText = fmt.Sprintf("LD v%X, [I]", value)
+				break
+			}
 			break
 		}
 
@@ -177,7 +195,7 @@ func drawRegisters(screen *ebiten.Image) {
 		text.Draw(screen, value, gameFont, colX, int(fontSize+3)+(i-10)*int(fontSize+2), color.White)
 	}
 
-	value := fmt.Sprintf("I = %04X", processor.I())
+	value := fmt.Sprintf("I = %04X (%02X)", processor.I(), processor.GetMemoryAtAddress(processor.I()))
 	text.Draw(screen, value, gameFont, colX, int(fontSize+3)+7*int(fontSize+2), color.White)
 }
 

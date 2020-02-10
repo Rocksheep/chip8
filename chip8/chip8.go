@@ -255,6 +255,10 @@ func (chip8 *Chip8) GetNextCommands(n uint16) []DebugCommand {
 	return commands
 }
 
+func (chip8 *Chip8) GetMemoryAtAddress(address uint16) byte {
+	return chip8.memory[address]
+}
+
 func (chip8 *Chip8) V() [16]byte {
 	return chip8.generalRegisters
 }
