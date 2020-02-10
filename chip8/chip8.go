@@ -19,6 +19,11 @@ type Chip8 struct {
 	screenBuffer     [2048]byte // 64*32
 }
 
+type DebugCommand struct {
+	Address     uint16
+	Instruction uint16
+}
+
 // New Create a new instance
 func New() *Chip8 {
 	memory := [4096]byte{
@@ -55,7 +60,7 @@ func New() *Chip8 {
 
 func (chip8 *Chip8) Step() {
 	var data uint16 = uint16(chip8.memory[chip8.programCounter])<<8 | uint16(chip8.memory[chip8.programCounter+1])
-	fmt.Printf("%X\n", data)
+	// fmt.Printf("%X\n", data)
 
 	switch data & 0xF000 {
 	case 0x0000:
@@ -239,4 +244,24 @@ func (chip8 *Chip8) LoadProgram(program []byte) {
 
 func (chip8 *Chip8) ScreenBuffer() [2048]byte {
 	return chip8.screenBuffer
+}
+
+func (chip8 *Chip8) GetNextCommands(n uint16) []DebugCommand {
+	commands := make([]DebugCommand, n)
+	for i := uint16(0); i < n; i++ {
+		address := chip8.programCounter + (i * 2)
+		command := uint16(chip8.memory[address])<<8 | uint16(chip8.memory[address+1])
+
+		commands[i] = DebugCommand{address, command}
+	}
+
+	return commands
+}
+
+func (chip8 *Chip8) V() [16]byte {
+	return chip8.generalRegisters
+}
+
+func (chip8 *Chip8) I() uint16 {
+	return chip8.registerI
 }
