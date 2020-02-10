@@ -177,7 +177,8 @@ func (chip8 *Chip8) Step() {
 			chip8.programCounter += 2
 			break
 		case 0x33:
-			value := data & 0x0F00 >> 8
+			register := data & 0x0F00 >> 8
+			value := chip8.generalRegisters[register]
 			for i := uint16(3); i > 0; i-- {
 				chip8.memory[chip8.registerI+i-1] = byte(value % 10)
 				value /= 10
