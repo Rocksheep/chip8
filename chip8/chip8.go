@@ -3,7 +3,6 @@ package chip8
 import (
 	"fmt"
 	"math/rand"
-	"time"
 )
 
 // Chip8 ...
@@ -196,8 +195,6 @@ func (chip8 *Chip8) Step() {
 	default:
 		fmt.Printf("Unknown command: %X\n", data)
 	}
-
-	time.Sleep(2 * time.Millisecond)
 }
 
 func (chip8 *Chip8) call(address uint16) {

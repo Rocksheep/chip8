@@ -31,6 +31,10 @@ var processor *chip8.Chip8
 var fontSize float64 = 6.7
 var gameFont font.Face
 
+var prevSpacePressed bool
+var prevEnterPressed bool
+var debugMode bool
+
 func main() {
 	input, err := ioutil.ReadFile(os.Args[1])
 	if err != nil {
@@ -44,8 +48,9 @@ func main() {
 
 	processor = chip8.New()
 	processor.LoadProgram(input)
-
-	go startProcessor()
+	prevSpacePressed = false
+	prevEnterPressed = false
+	debugMode = true
 
 	if err := ebiten.Run(update, windowWidth, windowHeight, 2, "Chip8"); err != nil {
 		log.Fatal(err)
@@ -53,6 +58,24 @@ func main() {
 }
 
 func update(screen *ebiten.Image) error {
+	spacePressed := ebiten.IsKeyPressed(ebiten.KeySpace)
+	enterPressed := ebiten.IsKeyPressed(ebiten.KeyEnter)
+
+	if debugMode {
+		if spacePressed && spacePressed != prevSpacePressed {
+			processor.Step()
+		}
+	} else {
+		processor.Step()
+	}
+
+	if enterPressed && enterPressed != prevEnterPressed {
+		debugMode = !debugMode
+	}
+
+	prevEnterPressed = enterPressed
+	prevSpacePressed = spacePressed
+
 	if ebiten.IsDrawingSkipped() {
 		fmt.Println("Skipping")
 		return nil
@@ -178,11 +201,4 @@ func drawGameRect(screen *ebiten.Image) {
 	drawOptionsScreen := &ebiten.DrawImageOptions{}
 	drawOptionsScreen.GeoM.Translate(1, 1)
 	screen.DrawImage(chip8Screen, drawOptionsScreen)
-}
-
-func startProcessor() {
-	processor.Step()
-	for true {
-		processor.Step()
-	}
 }
