@@ -58,6 +58,30 @@ func main() {
 }
 
 func update(screen *ebiten.Image) error {
+	pressedKeys := map[uint8]bool{}
+
+	pressedKeys[0x1] = ebiten.IsKeyPressed(ebiten.Key1)
+	pressedKeys[0x2] = ebiten.IsKeyPressed(ebiten.Key2)
+	pressedKeys[0x3] = ebiten.IsKeyPressed(ebiten.Key3)
+	pressedKeys[0xC] = ebiten.IsKeyPressed(ebiten.Key4)
+
+	pressedKeys[0x4] = ebiten.IsKeyPressed(ebiten.KeyQ)
+	pressedKeys[0x5] = ebiten.IsKeyPressed(ebiten.KeyW)
+	pressedKeys[0x6] = ebiten.IsKeyPressed(ebiten.KeyE)
+	pressedKeys[0xD] = ebiten.IsKeyPressed(ebiten.KeyR)
+
+	pressedKeys[0x7] = ebiten.IsKeyPressed(ebiten.KeyA)
+	pressedKeys[0x8] = ebiten.IsKeyPressed(ebiten.KeyS)
+	pressedKeys[0x9] = ebiten.IsKeyPressed(ebiten.KeyD)
+	pressedKeys[0xE] = ebiten.IsKeyPressed(ebiten.KeyF)
+
+	pressedKeys[0xA] = ebiten.IsKeyPressed(ebiten.KeyZ)
+	pressedKeys[0x0] = ebiten.IsKeyPressed(ebiten.KeyX)
+	pressedKeys[0xB] = ebiten.IsKeyPressed(ebiten.KeyC)
+	pressedKeys[0xF] = ebiten.IsKeyPressed(ebiten.KeyV)
+
+	processor.SetPressedKeys(pressedKeys)
+
 	spacePressed := ebiten.IsKeyPressed(ebiten.KeySpace)
 	enterPressed := ebiten.IsKeyPressed(ebiten.KeyEnter)
 

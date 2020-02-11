@@ -16,6 +16,7 @@ type Chip8 struct {
 	programCounter   uint16
 	stack            [16]uint16
 	screenBuffer     [2048]byte // 64*32
+	pressedKeys      map[byte]bool
 }
 
 type DebugCommand struct {
@@ -54,6 +55,7 @@ func New() *Chip8 {
 		0x200,
 		[16]uint16{},
 		[2048]byte{},
+		map[byte]bool{},
 	}
 }
 
@@ -149,7 +151,14 @@ func (chip8 *Chip8) Step() {
 		break
 	case 0xE000:
 		//TODO: Add actual keyboard checks
-		if data&0xFF == 0xA1 {
+		register := (data & 0xF00) >> 8
+		key := chip8.generalRegisters[register]
+		value, ok := chip8.pressedKeys[key]
+		isPressed := !ok || value
+		if data&0xFF == 0x9E && isPressed {
+			chip8.programCounter += 2
+		}
+		if data&0xFF == 0xA1 && !isPressed {
 			chip8.programCounter += 2
 		}
 		chip8.programCounter += 2
@@ -266,4 +275,8 @@ func (chip8 *Chip8) V() [16]byte {
 
 func (chip8 *Chip8) I() uint16 {
 	return chip8.registerI
+}
+
+func (chip8 *Chip8) SetPressedKeys(pressedKeys map[byte]bool) {
+	chip8.pressedKeys = pressedKeys
 }
