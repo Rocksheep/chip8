@@ -52,6 +52,7 @@ func main() {
 	prevEnterPressed = false
 	debugMode = true
 
+	ebiten.SetMaxTPS(500)
 	if err := ebiten.Run(update, windowWidth, windowHeight, 2, "Chip8"); err != nil {
 		log.Fatal(err)
 	}
