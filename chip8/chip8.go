@@ -219,14 +219,14 @@ func (chip8 *Chip8) draw(data uint16) {
 	spriteSize := byte(data & 0x000F)
 
 	vX := uint16(chip8.generalRegisters[vXAddress])
-	vY := uint16(chip8.generalRegisters[vYAddress]) * 64
+	vY := uint16(chip8.generalRegisters[vYAddress])
 	chip8.generalRegisters[0xF] = 0
 
 	for line := byte(0); line < spriteSize; line++ {
 		spriteAddress := chip8.registerI + uint16(line)
 		sprite := chip8.memory[spriteAddress]
 
-		y := vY + 64*uint16(line)
+		y := (vY + uint16(line)) % 32 * 64
 		for i := uint16(0); i < 8; i++ {
 			x := (vX + i) % 64
 			prevValue := chip8.screenBuffer[x+y]
