@@ -160,6 +160,20 @@ func drawMemory(screen *ebiten.Image) {
 		instructionText := fmt.Sprintf("%04X", commands[i].Instruction)
 
 		switch commands[i].Instruction & 0xF000 {
+		case 0x0000:
+			switch commands[i].Instruction & 0xFF {
+			case 0xE0:
+				instructionText = "CLS"
+				break
+			case 0xEE:
+				instructionText = "RET"
+				break
+			}
+			break
+		case 0x1000:
+			addr := commands[i].Instruction & 0xFFF
+			instructionText = fmt.Sprintf("JMP %03X", addr)
+			break
 		case 0x2000:
 			addr := commands[i].Instruction & 0xFFF
 			instructionText = fmt.Sprintf("CALL %03X", addr)
@@ -168,6 +182,24 @@ func drawMemory(screen *ebiten.Image) {
 			v := commands[i].Instruction & 0xF00 >> 8
 			kk := byte(commands[i].Instruction)
 			instructionText = fmt.Sprintf("SET v%X, %02X", v, kk)
+			break
+		case 0x7000:
+			v := commands[i].Instruction & 0xF00 >> 8
+			kk := byte(commands[i].Instruction)
+			instructionText = fmt.Sprintf("ADD v%X, %02X", v, kk)
+			break
+		case 0x8000:
+			switch commands[i].Instruction & 0xF {
+			case 0x3:
+				vX := commands[i].Instruction & 0xF00 >> 8
+				vY := commands[i].Instruction & 0xF0 >> 4
+				instructionText = fmt.Sprintf("XOR V%X, V%X", vX, vY)
+				break
+			case 0x6:
+				v := commands[i].Instruction & 0xF00 >> 8
+				instructionText = fmt.Sprintf("SHR v%X", v)
+				break
+			}
 			break
 		case 0xA000:
 			instructionText = fmt.Sprintf("SET I, %03X", commands[i].Instruction&0xFFF)
@@ -181,11 +213,20 @@ func drawMemory(screen *ebiten.Image) {
 		case 0xF000:
 			value := (commands[i].Instruction & 0xF00) >> 8
 			switch commands[i].Instruction & 0xFF {
+			case 0x0A:
+				instructionText = fmt.Sprintf("LD v%X, K", value)
+				break
+			case 0x1E:
+				instructionText = fmt.Sprintf("ADD I, v%X", value)
+				break
 			case 0x29:
 				instructionText = fmt.Sprintf("LD F, v%X", value)
 				break
 			case 0x33:
 				instructionText = fmt.Sprintf("LD B, v%X", value)
+				break
+			case 0x55:
+				instructionText = fmt.Sprintf("LD [I], v%X", value)
 				break
 			case 0x65:
 				instructionText = fmt.Sprintf("LD v%X, [I]", value)

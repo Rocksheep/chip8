@@ -69,6 +69,10 @@ func (chip8 *Chip8) Step() {
 			chip8.stackPointer--
 			chip8.programCounter = chip8.stack[chip8.stackPointer] + 2
 		}
+		if data&0xFF == 0xE0 {
+			chip8.screenBuffer = [2048]byte{}
+			chip8.programCounter += 2
+		}
 		break
 	case 0x1000:
 		chip8.programCounter = data & 0xFFF
@@ -116,6 +120,10 @@ func (chip8 *Chip8) Step() {
 			chip8.generalRegisters[registerA] &= chip8.generalRegisters[registerB]
 			chip8.programCounter += 2
 			break
+		case 0x3:
+			chip8.generalRegisters[registerA] ^= chip8.generalRegisters[registerB]
+			chip8.programCounter += 2
+			break
 		case 0x4:
 			result := uint16(chip8.generalRegisters[registerA]) + uint16(chip8.generalRegisters[registerB])
 			if result > 255 {
@@ -133,6 +141,12 @@ func (chip8 *Chip8) Step() {
 				chip8.generalRegisters[0xF] = 0
 			}
 			chip8.generalRegisters[registerA] -= chip8.generalRegisters[registerB]
+			chip8.programCounter += 2
+			break
+		case 0x6:
+			value := chip8.generalRegisters[registerA] & 1
+			chip8.generalRegisters[0xF] = value
+			chip8.generalRegisters[registerA] /= 2
 			chip8.programCounter += 2
 			break
 		}
@@ -169,6 +183,16 @@ func (chip8 *Chip8) Step() {
 			register := data & 0x0F00 >> 8
 			chip8.generalRegisters[register] = chip8.delayTimer
 			chip8.programCounter += 2
+		case 0x0A:
+			register := data & 0x0F00 >> 8
+			for key, isPressed := range chip8.pressedKeys {
+				if isPressed {
+					chip8.generalRegisters[register] = key
+					chip8.programCounter += 2
+					break
+				}
+			}
+
 		case 0x15:
 			value := byte(data & 0x0F00 >> 8)
 			chip8.delayTimer = value
@@ -177,6 +201,11 @@ func (chip8 *Chip8) Step() {
 		case 0x18:
 			register := (data & 0xF00) >> 8
 			chip8.soundTimer = chip8.generalRegisters[register]
+			chip8.programCounter += 2
+			break
+		case 0x1E:
+			register := (data & 0xF00) >> 8
+			chip8.registerI += uint16(chip8.generalRegisters[register])
 			chip8.programCounter += 2
 			break
 		case 0x29:
@@ -191,6 +220,13 @@ func (chip8 *Chip8) Step() {
 			for i := uint16(3); i > 0; i-- {
 				chip8.memory[chip8.registerI+i-1] = byte(value % 10)
 				value /= 10
+			}
+			chip8.programCounter += 2
+			break
+		case 0x55:
+			limit := data & 0x0F00 >> 8
+			for i := uint16(0); i <= limit; i++ {
+				chip8.memory[chip8.registerI+i] = chip8.generalRegisters[i]
 			}
 			chip8.programCounter += 2
 			break
