@@ -9,7 +9,7 @@ import (
 
 	"golang.org/x/image/font"
 
-	"chip8/chip8"
+	"github.com/Rocksheep/chip8/chip8"
 
 	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten"
